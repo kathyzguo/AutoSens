@@ -4,6 +4,10 @@
 #include "sensor.h"
 #include "display.h"
 
+const uint16_t port  = 5000;
+
+WiFiClient client;
+
 void connect() {
     Serial.println("\n=== SYSTEM START ===");
 
@@ -20,6 +24,22 @@ void connect() {
     }
 
     Serial.println("\nWi-Fi Connection Established!");
+}
+
+void client_side() {
+    if (!client.connected()) {
+        client.connect(COMP_IP, port);
+        delay(1000);
+        return;
+    }
+
+    client.println(sensorDataToString(getSensorInfo()));
+
+    if (client.available()) {
+        String result = client.readStringUntil('\n');
+        displayText(result);
+    }
+    delay(500);
 }
 
 void setup() {
